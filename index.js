@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 require('dotenv').config();
 
-const client = new Discord.Client();
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 client.on('ready', () => {
   console.log('Bot is ready');
