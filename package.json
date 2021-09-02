@@ -1,0 +1,19 @@
+{
+  "name": "potbot",
+  "version": "1.0.0",
+  "description": "Just a personal bot.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huytrinhm/PotBot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/huytrinhm/PotBot/issues"
+  },
+  "homepage": "https://github.com/huytrinhm/PotBot#readme"
+}
