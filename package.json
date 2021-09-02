@@ -1,6 +1,9 @@
 {
   "name": "potbot",
   "version": "1.0.0",
+  "engines": {
+    "node": "16.6.x"
+  },
   "description": "Just a personal bot.",
   "main": "index.js",
   "scripts": {
