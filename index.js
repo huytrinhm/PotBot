@@ -2,7 +2,7 @@ const { Client, Intents, MessageEmbed } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-// require('dotenv').config();
+require('dotenv').config();
 const admin = require('firebase-admin');
 
 //===FIREBASE===
@@ -18,7 +18,7 @@ const db = admin.firestore();
 
 
 //===DISCORD_CLIENT===
-var prefix = '?';
+var prefix = '.';
 const cmds = [
 	'prefix',
 	'set',
@@ -28,14 +28,21 @@ const cmds = [
 	'help'
 ];
 const opts = [
-	'all',
 	'name',
 	'iot_username',
 	'cpbo_username',
 	'class'
 ];
 
-const helpMsg = `**All commands**
+const opts_map = {
+	name: "name",
+	iot_username: "IOT username",
+	cpbo_username: "CPBO username",
+	class: "class"
+}
+
+const helpMsg = 
+`**All commands**
 \`?prefix <character>\`: Change bot prefix to <character>
 \`?info [@someone]\`: Show information about user
 \`?set all|name|class|iot_username|cpbo_username\`: Set your info
@@ -44,11 +51,42 @@ const helpMsg = `**All commands**
 \`?unfreeze @someone\`: (Admin only) Undo the effect of the previous command
 \`?help\`: Show this message`;
 
+async function setSingleField(changeId, msg, opt) {
+	var docRef = db.collection('discord_users').doc(changeId);
+	const filter = m => {return m.author.id == msg.author.id};
+
+	var msgInfo = await msg.channel.send(`Enter ${opts_map[opt]} (enter \`cancel\` to cancel):`);
+	var msgPromise = msg.channel.awaitMessages({
+		filter,
+		max: 1,
+		time: 20000,
+		errors: ['time']
+	}).then((collected) => {
+		var info = collected.first().content;
+		if(info == 'cancel') {
+			collected.first().reply('Operation was cancelled!');
+			throw {name: "OperationCancel", message: "Operation was cancelled!"};
+		}
+		var addVal = {};
+		addVal[opt] = info;
+		docRef.set(addVal, {merge: true}).catch(() => {
+			msg.channel.send(':x: Unexpected error!');
+		});
+	}).catch((e) => {
+		if(e.name != 'OperationCancel')
+			msgInfo.reply(':x: No answer provided!');
+		throw e;
+	});
+
+	return msgPromise;
+}
+
 async function setCommand(changeId, msg, opt) {
-	if(!opts.includes(opt)) {
+	if(!opts.includes(opt) && opt != 'all') {
 		msg.channel.send(':x: Invalid option!');
 		return;
 	}
+
 	var docRef = db.collection('discord_users').doc(changeId);
 	var doc = await docRef.get();
 	if(doc.exists) {
@@ -58,76 +96,19 @@ async function setCommand(changeId, msg, opt) {
 		}
 	}
 
-	const filter = m => {return m.author.id == msg.author.id};
-
 	if(opt == 'all') {
-		var msgName = await msg.channel.send('Enter name:');
-		msg.channel.awaitMessages({
-			filter,
-			max: 1,
-			time: 30000,
-			error: ['time']
-		}).then(async (collected) => {
-			var name = collected.first().content;
-			docRef.set({name: name}, {merge: true});
-			var msgIOT = await msg.channel.send('Enter IOT username:');
-			msg.channel.awaitMessages({
-				filter,
-				max: 1,
-				time: 30000,
-				error: ['time']
-			}).then(async (collected) => {
-				var IOT = collected.first().content;
-				docRef.set({iot_username: IOT}, {merge: true});
-				var msgCPBO = await msg.channel.send('Enter CPBO username:');
-				msg.channel.awaitMessages({
-					filter,
-					max: 1,
-					time: 30000,
-					error: ['time']
-				}).then(async (collected) => {
-					var CPBO = collected.first().content;
-					docRef.set({cpbo_username: CPBO}, {merge: true});
-					var msgClass = await msg.channel.send('Enter class:');
-					msg.channel.awaitMessages({
-						filter,
-						max: 1,
-						time: 30000,
-						error: ['time']
-					}).then(async (collected) => {
-						var Class = collected.first().content;
-						docRef.set({class: Class}, {merge: true});
-						msg.channel.send(':white_check_mark: Update successfully!');
-					}).catch(() => {
-						msgClass.reply(':x: No answer provided!');
-					});
-				}).catch(() => {
-					msgCPBO.reply(':x: No answer provided!');
-				});
-			}).catch(() => {
-				msgIOT.reply(':x: No answer provided!');
-			});
-		}).catch(() => {
-			msgName.reply(':x: No answer provided!');
-		});
+		for(const field of opts) {
+			try {
+				await setSingleField(changeId, msg, field);
+			} catch(e) {
+				break;
+			}
+		}
 	} else {
-		var msgInfo = await msg.channel.send('Enter \`' + opt + '\`:');
-		msg.channel.awaitMessages({
-			filter,
-			max: 1,
-			time: 30000,
-			error: ['time']
-		}).then((collected) => {
-			var info = collected.first().content;
-			var addVal = {};
-			addVal[opt] = info;
-			docRef.set(addVal, {merge: true}).then(() => {
-				msg.channel.send(':white_check_mark: Update successfully!');
-			}).catch(() => {
-				msg.channel.send(':x: Unexpected error!');
-			});
+		setSingleField(changeId, msg, opt).then((e) => {
+			msg.channel.send(':white_check_mark: Update successfully!');
 		}).catch(() => {
-			msgInfo.reply(':x: No answer provided!');
+
 		});
 	}
 }
