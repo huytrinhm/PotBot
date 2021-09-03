@@ -53,7 +53,13 @@ const helpMsg =
 \`?set [@someone] all|name|class|iot_username|cpbo_username\`: (Admin only) Set other user's info
 \`?freeze @someone\`: (Admin only) Disallow \`@someone\` from changing their info
 \`?unfreeze @someone\`: (Admin only) Undo the effect of the previous command
-\`?help\`: Show this message`;
+\`?help\`: Show this message
+
+**Quiz commands**
+\`?quiz <id>\`: Show quiz
+\`?add-quiz\`: Add a new quiz
+\`?random-quiz\`, \`endless-quiz\`: Not yet implemented!
+`;
 
 async function setSingleField(changeId, msg, opt) {
 	var docRef = db.collection('discord_users').doc(changeId);
@@ -105,9 +111,10 @@ async function setCommand(changeId, msg, opt) {
 			try {
 				await setSingleField(changeId, msg, field);
 			} catch(e) {
-				break;
+				return;
 			}
 		}
+		msg.channel.send(':white_check_mark: Update successfully!');
 	} else {
 		setSingleField(changeId, msg, opt).then((e) => {
 			msg.channel.send(':white_check_mark: Update successfully!');
