@@ -2,7 +2,7 @@ const { Client, Intents, MessageEmbed } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-require('dotenv').config();
+// require('dotenv').config();
 const admin = require('firebase-admin');
 
 //===FIREBASE===
