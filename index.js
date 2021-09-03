@@ -97,6 +97,7 @@ async function setCommand(changeId, msg, opt) {
 					}).then(async (collected) => {
 						var Class = collected.first().content;
 						docRef.set({class: Class}, {merge: true});
+						msg.channel.send(':white_check_mark: Update successfully!');
 					}).catch(() => {
 						msgClass.reply(':x: No answer provided!');
 					});
