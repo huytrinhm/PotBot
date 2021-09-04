@@ -11,7 +11,10 @@ const helpMsg =
 **Quiz commands**
 \`?quiz <id>\`: Show quiz
 \`?add-quiz\`: Add a new quiz
-\`?random-quiz\`, \`endless-quiz\`: Not yet implemented!
+\`?edit-quiz <id>\`: Edit an existing quiz
+\`?quiz-stat\`: Show statistics about quiz
+\`?endless-quiz\`: Play endless quiz
+\`?random-quiz\`: Not yet implemented!
 `;
 
 function changePrefix(tokens, msg) {

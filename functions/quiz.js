@@ -242,4 +242,13 @@ async function editQuiz(tokens, msg) {
 	});
 }
 
-module.exports = {showQuiz, addQuiz, editQuiz};
+async function showStat(tokens, msg) {
+	var count = (await db.collection('misc').doc('quiz-info').get('count')).data().count;
+	msg.channel.send(`:grey_exclamation: Quiz count: ${count}`)
+}
+
+function endlessQuiz(tokens, msg) {
+	return;
+}
+
+module.exports = {showQuiz, addQuiz, editQuiz, showStat, endlessQuiz};

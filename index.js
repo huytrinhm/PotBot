@@ -30,7 +30,8 @@ const cmds = [
 	'quiz',
 	'edit-quiz',
 	'endless-quiz',
-	'add-quiz'
+	'add-quiz',
+	'quiz-stat'
 ];
 
 const client = new Client({ intents: [
@@ -44,7 +45,7 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (msg) => {
-	if(msg.author.id == client.user.id)
+	if(msg.author.bot)
 		return;
 
 	if(msg.content[0] != prefix)
@@ -85,6 +86,12 @@ client.on('messageCreate', async (msg) => {
 			break;
 		case prefix + 'edit-quiz':
 			quiz.editQuiz(tokens, msg);
+			break;
+		case prefix + 'quiz-stat':
+			quiz.showStat(tokens, msg);
+			break;
+		case prefix + 'endless-quiz':
+			quiz.endlessQuiz(tokens, msg);
 			break;
 	}
 });
