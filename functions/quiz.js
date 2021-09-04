@@ -302,7 +302,7 @@ async function quizLoop(msg, count) {
 	var quiz = (await db.collection('quiz').doc(String(id)).get()).data();
 	sendQuizWithoutAns(msg, quiz, id);
 	var startTime = Date.now();
-	var length = (2*quiz.score - 10)*1000 + wordCount(quiz.question)*200;
+	var length = (2*quiz.score - 10)*1000 + wordCount(quiz.question)*150;
 	var filter = (m) => {return !m.author.bot};
 	var quit = false, skip = false, correct = false;
 	while(!quit && !skip && !correct) {
@@ -322,7 +322,6 @@ async function quizLoop(msg, count) {
 						correct = true;
 					} else {
 						collected.first().react('<:sadge:883698222634254416>');
-						collected.first().reply('That\'s wrong!');
 					}
 				} else {
 					skip = true;
