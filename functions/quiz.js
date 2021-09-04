@@ -21,6 +21,23 @@ function sendQuiz(msg, data, id) {
 	}
 }
 
+function sendQuizWithoutAns(msg, data, id) {
+	try {
+		if(data.type == 0) {
+			var em = new MessageEmbed()
+				.setColor('#0099ff')
+				.setTitle(`${data.score} points question`)
+				.setDescription(data.question)
+				.addField('Tags', data.tag.join(', '))
+				.setFooter(`ID: ${id}`);
+
+			msg.channel.send({embeds: [em]});
+		}
+	} catch(e) {
+		msg.channel.send(':x: Unexpected error!');
+	}
+}
+
 async function showQuiz(tokens, msg) {
 	if(tokens.length != 2) {
 		msg.channel.send(':x: You have to specify a quiz id!');
@@ -247,8 +264,86 @@ async function showStat(tokens, msg) {
 	msg.channel.send(`:grey_exclamation: Quiz count: ${count}`)
 }
 
-function endlessQuiz(tokens, msg) {
-	return;
+function random(n) {
+	return Math.floor(Math.random() * n + 1);
+}
+
+function checkAns(sys, usr) {
+	var uans = usr.toLowerCase().replace(' , ', ', ').replace(', ', ',').replace(',', ', ').trim();
+	for(const ans of sys) {
+		if(uans == ans.toLowerCase().replace(' , ', ', ').replace(', ', ',').replace(',', ', ').replace('~>', ', ').trim())
+			return true;
+		if(ans.includes('~+')) {
+			var uans_arr = uans.split(', ').sort();
+			var ans_arr = ans.split('~+').sort();
+			if(uans_arr.length == ans_arr.length) {
+				var flag = false;
+				for(var i = 0; i < uans_arr.length; i++) {
+					if(uans_arr[i] != ans_arr[i].toLowerCase().trim()) {
+						flag = true;
+						break;
+					}
+				}
+
+				if(!flag)
+					return true;
+			}
+		}
+	}
+	return false;
+}
+
+function wordCount(s) {
+	return s.split(' ').length;
+}
+
+async function quizLoop(msg, count) {
+	var id = random(count);
+	var quiz = (await db.collection('quiz').doc(String(id)).get()).data();
+	sendQuizWithoutAns(msg, quiz, id);
+	var startTime = Date.now();
+	var length = (2*quiz.score - 10)*1000 + wordCount(quiz.question)*200;
+	var filter = (m) => {return !m.author.bot};
+	var quit = false, skip = false, correct = false;
+	while(!quit && !skip && !correct) {
+		await msg.channel.awaitMessages({
+			filter,
+			max: 1,
+			time: startTime + length - Date.now(),
+			errors: ['time']
+		}).then((collected) => {
+			if(collected.first().content == 'quit') {
+				quit = true;
+			} else {
+				if(collected.first().content != 'skip') {
+					if(checkAns(quiz.answers, collected.first().content)) {
+						collected.first().react('<:pepeOK:883707335615340544>');
+						collected.first().reply('Correct!');
+						correct = true;
+					} else {
+						collected.first().react('<:sadge:883698222634254416>');
+						collected.first().reply('That\'s wrong!');
+					}
+				} else {
+					skip = true;
+				}
+			}
+		}).catch(() => {
+			msg.channel.send('Time\'s up!');
+			skip = true;
+		});
+	}
+	msg.channel.send(`The answer is **${quiz.answers[0].replace('~+', ', ').replace('~>', ', ')}**`);
+	if(quit) {
+		msg.channel.send('Bye!');
+		return;
+	}
+	quizLoop(msg, count);
+}
+
+async function endlessQuiz(tokens, msg) {
+	var count = (await db.collection('misc').doc('quiz-info').get('count')).data().count;
+	quizLoop(msg, count);
 }
 
 module.exports = {showQuiz, addQuiz, editQuiz, showStat, endlessQuiz};

@@ -29,7 +29,7 @@ const cmds = [
 	'help',
 	'quiz',
 	'edit-quiz',
-	'endless-quiz',
+	'endless-quiz', 'xào-đề',
 	'add-quiz',
 	'quiz-stat'
 ];
@@ -56,7 +56,7 @@ client.on('messageCreate', async (msg) => {
 	if(!cmds.includes(tokens[0].slice(1)))
 		return;
 
-	msg.react('👌');
+	msg.react('<:pepeOK:883707335615340544>');
 
 	switch(tokens[0]) {
 		case prefix + 'prefix':
@@ -90,6 +90,7 @@ client.on('messageCreate', async (msg) => {
 		case prefix + 'quiz-stat':
 			quiz.showStat(tokens, msg);
 			break;
+		case prefix + 'xào-đề':
 		case prefix + 'endless-quiz':
 			quiz.endlessQuiz(tokens, msg);
 			break;
