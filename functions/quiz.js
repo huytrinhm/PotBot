@@ -1,5 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 const admin = require('firebase-admin');
+const quizDict = require('./dict.js');
 const db = admin.firestore();
 
 
@@ -120,6 +121,8 @@ async function addQuiz(tokens, msg) {
 			throw {name: "OperationCancel", message: "Operation was cancelled!"};
 		}
 		var answers = info.split('|');
+		for(var i = 0; i < answers.length; i++)
+			answers[i] = answers[i].trim().replaceAll(' ~> ', '~> ').replaceAll('~> ', '~>').replaceAll(' ~+ ', '~+ ').replaceAll('~+ ', '~+').replaceAll(' , ', ',').replaceAll(',', ', ');
 		newQuiz.answers = answers;
 
 		msg.channel.send(`Question's tags (use \`|\` to seperate tags, enter \`cancel\` to cancel):`);
@@ -137,7 +140,19 @@ async function addQuiz(tokens, msg) {
 			throw {name: "OperationCancel", message: "Operation was cancelled!"};
 		}
 		var tag = info.split('|');
-		newQuiz.tag = tag;
+		var tagSet = new Set();
+		for(var i = 0; i < tag.length; i++) {
+			tag[i] = tag[i].trim();
+			if(tagDict.get(tag[i].toLowerCase())) {
+				tagSet.add(tagDict.get(tag[i].toLowerCase()));
+			} else {
+				tagSet.add(tag[i]);
+			}
+
+			if(otherDict.get(tag[i].toLowerCase()))
+				tagSet.add(otherDict.get(tag[i].toLowerCase()));
+		}
+		newQuiz.tag = Array.from(tagSet);
 
 		db.collection('quiz').doc(String(count + 1)).set(newQuiz).then(() => {
 			msg.channel.send(':white_check_mark: Add successfully!');
@@ -230,6 +245,8 @@ async function editQuiz(tokens, msg) {
 			throw {name: "OperationCancel", message: "Operation was cancelled!"};
 		}
 		var answers = info.split('|');
+		for(var i = 0; i < answers.length; i++)
+			answers[i] = answers[i].trim().replaceAll(' ~> ', '~> ').replaceAll('~> ', '~>').replaceAll(' ~+ ', '~+ ').replaceAll('~+ ', '~+').replaceAll(' , ', ',').replaceAll(',', ', ');
 		newQuiz.answers = answers;
 
 		msg.channel.send(`Question's tags (use \`|\` to seperate tags, enter \`cancel\` to cancel):`);
@@ -247,7 +264,19 @@ async function editQuiz(tokens, msg) {
 			throw {name: "OperationCancel", message: "Operation was cancelled!"};
 		}
 		var tag = info.split('|');
-		newQuiz.tag = tag;
+		var tagSet = new Set();
+		for(var i = 0; i < tag.length; i++) {
+			tag[i] = tag[i].trim();
+			if(tagDict.get(tag[i].toLowerCase())) {
+				tagSet.add(tagDict.get(tag[i].toLowerCase()));
+			} else {
+				tagSet.add(tag[i]);
+			}
+
+			if(otherDict.get(tag[i].toLowerCase()))
+				tagSet.add(otherDict.get(tag[i].toLowerCase()));
+		}
+		newQuiz.tag = Array.from(tagSet);
 
 		db.collection('quiz').doc(String(id)).set(newQuiz).then(() => {
 			msg.channel.send(':white_check_mark: Edit successfully!');
@@ -297,17 +326,21 @@ function wordCount(s) {
 	return s.split(' ').length;
 }
 
-async function quizLoop(msg, count) {
+async function quizLoop(msg, count, alone) {
 	var id = random(count);
 	var quiz = (await db.collection('quiz').doc(String(id)).get()).data();
 	sendQuizWithoutAns(msg, quiz, id);
 	var startTime = Date.now();
 	var length = (5000 + quiz.score*500) + wordCount(quiz.question)*300;
-	var filter = (m) => {return !m.author.bot};
+	var uFilter;
+	if(!alone)
+		uFilter = (m) => {return !m.author.bot};
+	else
+		uFilter = (m) => {return m.author.id == msg.author.id};
 	var quit = false, skip = false, correct = false;
 	while(!quit && !skip && !correct) {
 		await msg.channel.awaitMessages({
-			filter,
+			uFilter,
 			max: 1,
 			time: startTime + length - Date.now(),
 			errors: ['time']
@@ -337,12 +370,15 @@ async function quizLoop(msg, count) {
 		msg.channel.send('Bye!');
 		return;
 	}
-	quizLoop(msg, count);
+	quizLoop(msg, count, alone);
 }
 
 async function endlessQuiz(tokens, msg) {
 	var count = (await db.collection('misc').doc('quiz-info').get('count')).data().count;
-	quizLoop(msg, count);
+	if(tokens.length == 2 && tokens[1].toLowerCase() == 'alone')
+		quizLoop(msg, count, true);
+	else
+		quizLoop(msg, count, false);
 }
 
 module.exports = {showQuiz, addQuiz, editQuiz, showStat, endlessQuiz};
