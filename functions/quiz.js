@@ -269,9 +269,9 @@ function random(n) {
 }
 
 function checkAns(sys, usr) {
-	var uans = usr.toLowerCase().replace(' , ', ', ').replace(', ', ',').replace(',', ', ').trim();
+	var uans = usr.toLowerCase().replaceAll(' , ', ', ').replaceAll(', ', ',').replaceAll(',', ', ').trim();
 	for(const ans of sys) {
-		if(uans == ans.toLowerCase().replace(' , ', ', ').replace(', ', ',').replace(',', ', ').replace('~>', ', ').trim())
+		if(uans == ans.toLowerCase().replaceAll(' , ', ', ').replaceAll(', ', ',').replaceAll(',', ', ').replaceAll('~>', ', ').trim())
 			return true;
 		if(ans.includes('~+')) {
 			var uans_arr = uans.split(', ').sort();
@@ -332,7 +332,7 @@ async function quizLoop(msg, count) {
 			skip = true;
 		});
 	}
-	msg.channel.send(`The answer is **${quiz.answers[0].replace('~+', ', ').replace('~>', ', ')}**`);
+	msg.channel.send(`The answer is **${quiz.answers[0].replaceAll('~+', ', ').replaceAll('~>', ', ')}**`);
 	if(quit) {
 		msg.channel.send('Bye!');
 		return;
