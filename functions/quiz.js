@@ -302,7 +302,7 @@ async function quizLoop(msg, count) {
 	var quiz = (await db.collection('quiz').doc(String(id)).get()).data();
 	sendQuizWithoutAns(msg, quiz, id);
 	var startTime = Date.now();
-	var length = (2*quiz.score - 10)*1000 + wordCount(quiz.question)*150;
+	var length = (5000 + quiz.score*500) + wordCount(quiz.question)*300;
 	var filter = (m) => {return !m.author.bot};
 	var quit = false, skip = false, correct = false;
 	while(!quit && !skip && !correct) {
@@ -312,10 +312,10 @@ async function quizLoop(msg, count) {
 			time: startTime + length - Date.now(),
 			errors: ['time']
 		}).then((collected) => {
-			if(collected.first().content == 'quit') {
+			if(collected.first().content.toLowerCase() == 'quit') {
 				quit = true;
 			} else {
-				if(collected.first().content != 'skip') {
+				if(collected.first().content.toLowerCase() != 'skip') {
 					if(checkAns(quiz.answers, collected.first().content)) {
 						collected.first().react('<:pepeOK:883707335615340544>');
 						collected.first().reply('Correct!');
