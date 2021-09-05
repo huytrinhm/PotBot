@@ -271,7 +271,7 @@ function random(n) {
 function checkAns(sys, usr) {
 	var uans = usr.toLowerCase().replaceAll(' , ', ', ').replaceAll(', ', ',').replaceAll(',', ', ').trim();
 	for(const ans of sys) {
-		if(uans == ans.toLowerCase().replaceAll(' , ', ', ').replaceAll(', ', ',').replaceAll(',', ', ').replaceAll('~>', ', ').trim())
+		if(uans == ans.toLowerCase().replaceAll(' , ', ', ').replaceAll(', ', ',').replaceAll(',', ', ').replaceAll(' ~> ', '~> ').replaceAll('~> ', '~>').replaceAll('~>', ', ').trim())
 			return true;
 		if(ans.includes('~+')) {
 			var uans_arr = uans.split(', ').sort();
