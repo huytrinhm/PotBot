@@ -27,7 +27,7 @@ function sendQuizWithoutAns(msg, data, id) {
 		if(data.type == 0) {
 			var em = new MessageEmbed()
 				.setColor('#0099ff')
-				.setTitle(`${data.score} points question`)
+				.setTitle(`${data.score} points question for ${msg.author.tag}`)
 				.setDescription(data.question)
 				.addField('Tags', data.tag.join(', '))
 				.setFooter(`ID: ${id}`);
@@ -332,15 +332,16 @@ async function quizLoop(msg, count, alone) {
 	sendQuizWithoutAns(msg, quiz, id);
 	var startTime = Date.now();
 	var length = (5000 + quiz.score*500) + wordCount(quiz.question)*300;
-	var uFilter;
-	if(!alone)
-		uFilter = (m) => {return !m.author.bot};
-	else
-		uFilter = (m) => {return m.author.id == msg.author.id};
+	var filter = (m) => {
+		if(alone)
+			return m.author.id == msg.author.id;
+		else
+			return !m.author.bot;
+	};
 	var quit = false, skip = false, correct = false;
 	while(!quit && !skip && !correct) {
 		await msg.channel.awaitMessages({
-			uFilter,
+			filter,
 			max: 1,
 			time: startTime + length - Date.now(),
 			errors: ['time']
