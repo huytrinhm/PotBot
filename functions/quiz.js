@@ -66,7 +66,7 @@ async function addQuiz(tokens, msg) {
 	newQuiz.type = 0;
 
 	var count = (await db.collection('misc').doc('quiz-info').get('count')).data().count;
-	db.collection('misc').doc('quiz-info').set({count: count + 1});
+	db.collection('misc').doc('quiz-info').set({count: count + 1}, {merge: true});
 	var filter = m => {return m.author.id == msg.author.id};
 
 	msg.channel.send(`Question's points (enter \`cancel\` to cancel):`);
@@ -159,7 +159,7 @@ async function addQuiz(tokens, msg) {
 		});
 	})
 	.catch((e) => {
-		db.collection('misc').doc('quiz-info').set({count: count});
+		db.collection('misc').doc('quiz-info').set({count: count}, {merge: true});
 		if(e.name != 'OperationCancel' && e.name != 'ValueError')
 			msg.channel.send(':x: No answer provided!');
 	});
