@@ -143,14 +143,14 @@ async function addQuiz(tokens, msg) {
 		var tagSet = new Set();
 		for(var i = 0; i < tag.length; i++) {
 			tag[i] = tag[i].trim();
-			if(tagDict.get(tag[i].toLowerCase())) {
-				tagSet.add(tagDict.get(tag[i].toLowerCase()));
+			if(quizDict.tagDict.get(tag[i].toLowerCase())) {
+				tagSet.add(quizDict.tagDict.get(tag[i].toLowerCase()));
 			} else {
 				tagSet.add(tag[i]);
 			}
 
-			if(otherDict.get(tag[i].toLowerCase()))
-				tagSet.add(otherDict.get(tag[i].toLowerCase()));
+			if(quizDict.otherDict.get(tag[i].toLowerCase()))
+				tagSet.add(quizDict.otherDict.get(tag[i].toLowerCase()));
 		}
 		newQuiz.tag = Array.from(tagSet);
 
@@ -267,14 +267,14 @@ async function editQuiz(tokens, msg) {
 		var tagSet = new Set();
 		for(var i = 0; i < tag.length; i++) {
 			tag[i] = tag[i].trim();
-			if(tagDict.get(tag[i].toLowerCase())) {
-				tagSet.add(tagDict.get(tag[i].toLowerCase()));
+			if(quizDict.tagDict.get(tag[i].toLowerCase())) {
+				tagSet.add(quizDict.tagDict.get(tag[i].toLowerCase()));
 			} else {
 				tagSet.add(tag[i]);
 			}
 
-			if(otherDict.get(tag[i].toLowerCase()))
-				tagSet.add(otherDict.get(tag[i].toLowerCase()));
+			if(quizDict.otherDict.get(tag[i].toLowerCase()))
+				tagSet.add(quizDict.otherDict.get(tag[i].toLowerCase()));
 		}
 		newQuiz.tag = Array.from(tagSet);
 
