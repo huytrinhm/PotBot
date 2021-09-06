@@ -40,6 +40,11 @@ function sendQuizWithoutAns(msg, data, id) {
 }
 
 async function showQuiz(tokens, msg) {
+	if(!msg.member.permissions.has("ADMINISTRATOR")) {
+		msg.reply(':x: User is not admin!');
+		return;
+	}
+
 	if(tokens.length != 2) {
 		msg.channel.send(':x: You have to specify a quiz id!');
 		return;
@@ -62,6 +67,11 @@ async function showQuiz(tokens, msg) {
 }
 
 async function addQuiz(tokens, msg) {
+	if(!msg.member.permissions.has("ADMINISTRATOR")) {
+		msg.reply(':x: User is not admin!');
+		return;
+	}
+
 	var newQuiz = {};
 	newQuiz.type = 0;
 
@@ -166,6 +176,11 @@ async function addQuiz(tokens, msg) {
 }
 
 async function editQuiz(tokens, msg) {
+	if(!msg.member.permissions.has("ADMINISTRATOR")) {
+		msg.reply(':x: User is not admin!');
+		return;
+	}
+	
 	if(tokens.length != 2) {
 		msg.channel.send(':x: You have to specify a quiz id!');
 		return;
