@@ -14,6 +14,8 @@ function sendQuiz(msg, data, id) {
 				.addField('Answers', `||${data.answers.join('|')}||`)
 				.addField('Tags', data.tag.join(', '))
 				.setFooter(`ID: ${id}`);
+			if(data.image)
+				em.setImage(data.image);
 
 			msg.channel.send({embeds: [em]});
 		}
@@ -31,6 +33,8 @@ function sendQuizWithoutAns(msg, data, id) {
 				.setDescription(data.question)
 				.addField('Tags', data.tag.join(', '))
 				.setFooter(`ID: ${id}`);
+			if(data.image)
+				em.setImage(data.image);
 
 			msg.channel.send({embeds: [em]});
 		}
@@ -115,6 +119,9 @@ async function addQuiz(tokens, msg) {
 		}
 		var statement = info;
 		newQuiz.question = statement;
+
+		if(collected.first().attachments.size)
+			newQuiz.image = collected.first().attachments.first().url;
 
 		msg.channel.send(`Question's answers (use \`|\` to seperate answers, enter \`cancel\` to cancel):`);
 		return msg.channel.awaitMessages({
@@ -244,6 +251,8 @@ async function editQuiz(tokens, msg) {
 		}
 		var statement = info;
 		newQuiz.question = statement;
+		if(collected.first().attachments.size)
+			newQuiz.image = collected.first().attachments.first().url;
 
 		msg.channel.send(`Question's answers (use \`|\` to seperate answers, enter \`cancel\` to cancel):`);
 		return msg.channel.awaitMessages({

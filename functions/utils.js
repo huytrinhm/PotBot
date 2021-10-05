@@ -1,5 +1,6 @@
+const { MessageEmbed } = require('discord.js');
 const helpMsg = 
-`**All commands**
+`**User commands**
 \`?prefix <character>\`: Change bot prefix to <character>
 \`?info [@someone]\`: Show information about user
 \`?set all|name|class|iot_username|cpbo_username\`: Set your info
@@ -14,7 +15,6 @@ const helpMsg =
 \`?edit-quiz <id>\`: Edit an existing quiz
 \`?quiz-stat\`: Show statistics about quiz
 \`?endless-quiz\`: Play endless quiz
-\`?random-quiz\`: Not yet implemented!
 `;
 
 function changePrefix(tokens, msg) {
@@ -41,4 +41,18 @@ function sendHelp(tokens, msg, prefix) {
 	msg.channel.send(helpMsg.replaceAll('?', prefix));
 }
 
-module.exports = {changePrefix, sendHelp};
+function debug(tokens, msg) {
+	if(!msg.attachments.size)
+		return;
+	var em = new MessageEmbed()
+				.setColor('#0099ff')
+				.setTitle(`Hêh test tí <(")`)
+				.setDescription('ádfsadfasdfafd')
+				.setImage(msg.attachments.first().url)
+				.addField('Tags', 'ád, sdafasd, ádfasdf')
+				.setFooter(`ID: 999`);
+
+	msg.channel.send({embeds: [em]});
+}
+
+module.exports = {changePrefix, sendHelp, debug};

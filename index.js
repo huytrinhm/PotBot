@@ -31,7 +31,8 @@ const cmds = [
 	'edit-quiz',
 	'endless-quiz', 'xào-đề',
 	'add-quiz',
-	'quiz-stat'
+	'quiz-stat',
+	'<(")'
 ];
 
 const client = new Client({ intents: [
@@ -94,6 +95,8 @@ client.on('messageCreate', async (msg) => {
 		case prefix + 'endless-quiz':
 			quiz.endlessQuiz(tokens, msg);
 			break;
+		case prefix + '<(")':
+			utils.debug(tokens, msg);
 	}
 });
 
