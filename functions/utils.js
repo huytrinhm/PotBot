@@ -58,6 +58,10 @@ function debug(tokens, msg) {
 }
 
 function nnn(tokens, msg) {
+	if(!msg.channel.nsfw) {
+		msg.channel.send("Vào nsfw mà đọc.");
+		return;
+	}
 	if((tokens.length != 2 && tokens.length != 3) || tokens[1].length != 6) {
 		msg.reply(':x: Wrong syntax!');
 		return;
