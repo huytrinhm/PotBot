@@ -1,4 +1,6 @@
 const { MessageEmbed } = require('discord.js');
+const { API, } = require('nhentai-api');
+const api = new API();
 const helpMsg = 
 `**User commands**
 \`?prefix <character>\`: Change bot prefix to <character>
@@ -55,4 +57,48 @@ function debug(tokens, msg) {
 	msg.channel.send({embeds: [em]});
 }
 
-module.exports = {changePrefix, sendHelp, debug};
+function nnn(tokens, msg) {
+	if((tokens.length != 2 && tokens.length != 3) || tokens[1].length != 6) {
+		msg.reply(':x: Wrong syntax!');
+		return;
+	}
+
+	var id = Math.floor(Number(tokens[1]));
+	if(isNaN(id)) {
+		msg.channel.send(':x: Id must be an positive integer!');
+		return;
+	}
+
+	var book = null;
+	api.getBook(id).then(book => {
+		var em = null;
+
+		if(tokens.length == 3) {
+			var page = Math.floor(Number(tokens[2]));
+			if(isNaN(page)) {
+				msg.channel.send(':x: Page number must be an positive integer!');
+				return;
+			}
+			em = new MessageEmbed()
+					.setColor('#0099ff')
+					.setDescription(`Page ${page}`)
+					.setTitle(book.title.english)
+					.setImage(api.getImageURL(book.pages[page - 1]))
+					.setTimestamp();
+		} else {
+			em = new MessageEmbed()
+					.setColor('#0099ff')
+					.setDescription(`${book.pages.length} pages`)
+					.setTitle(book.title.english)
+					.setImage(api.getImageURL(book.cover))
+					.addField('Tags', book.tags.map((tag) => {return tag.name}).join(', '))
+					.setTimestamp();
+		}
+		msg.channel.send({embeds: [em]});
+	}).catch((e) => {
+		msg.channel.send(":x: Error!");
+		return;
+	});	
+}
+
+module.exports = {changePrefix, sendHelp, debug, nnn};

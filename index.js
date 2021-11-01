@@ -32,7 +32,8 @@ const cmds = [
 	'endless-quiz', 'xào-đề',
 	'add-quiz',
 	'quiz-stat',
-	'<(")'
+	'<(")',
+	'nnn'
 ];
 
 const client = new Client({ intents: [
@@ -97,6 +98,9 @@ client.on('messageCreate', async (msg) => {
 			break;
 		case prefix + '<(")':
 			utils.debug(tokens, msg);
+			break;
+		case prefix + 'nnn':
+			utils.nnn(tokens, msg);
 	}
 });
 
