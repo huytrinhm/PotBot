@@ -73,7 +73,6 @@ function nnn(tokens, msg) {
 		return;
 	}
 
-	var book = null;
 	api.getBook(id).then(book => {
 		var em = null;
 
@@ -85,9 +84,10 @@ function nnn(tokens, msg) {
 			}
 			em = new MessageEmbed()
 					.setColor('#0099ff')
-					.setDescription(`Page ${page}`)
+					.setDescription(`Page ${page}/${book.pages.length}`)
 					.setTitle(book.title.english)
 					.setImage(api.getImageURL(book.pages[page - 1]))
+					.setFooter(`${String(id).padStart(6, '0')}/${page}`)
 					.setTimestamp();
 		} else {
 			em = new MessageEmbed()
@@ -96,13 +96,65 @@ function nnn(tokens, msg) {
 					.setTitle(book.title.english)
 					.setImage(api.getImageURL(book.cover))
 					.addField('Tags', book.tags.map((tag) => {return tag.name}).join(', '))
+					.setFooter(`${String(id).padStart(6, '0')}/${page||0}`)
 					.setTimestamp();
 		}
-		msg.channel.send({embeds: [em]});
+		msg.channel.send({embeds: [em]}).then((m) => {
+			m.react('⬅️');
+			m.react('➡️');
+		});
 	}).catch((e) => {
 		msg.channel.send(":x: Error!");
 		return;
-	});	
+	});
 }
 
-module.exports = {changePrefix, sendHelp, debug, nnn};
+function reactAdd(react, user) {
+	if(user.bot)
+		return;
+	if(react.message.member.id != react.client.user.id)
+		return;
+
+	var message = react.message;
+
+	if(!message.embeds || !message.embeds[0] || !message.embeds[0].footer || !message.embeds[0].footer.text)
+		return;
+
+	var footer = message.embeds[0].footer.text.split('/');
+	if(footer.length != 2)
+		return;
+
+	var id = Math.floor(Number(footer[0]));
+	var page = Math.floor(Number(footer[1]));
+
+
+	if(react.emoji.name == '➡️')
+		page = page + 1;
+	if(react.emoji.name == '⬅️')
+		page = page - 1;
+	if(page < 1)
+		return;
+	api.getBook(id).then(book => {
+		if(page > book.pages.length)
+			return;
+		var em = new MessageEmbed()
+					.setColor('#0099ff')
+					.setDescription(`Page ${page}/${book.pages.length}`)
+					.setTitle(book.title.english)
+					.setImage(api.getImageURL(book.pages[page - 1]))
+					.setFooter(`${String(id).padStart(6, '0')}/${page}`)
+					.setTimestamp();
+		message.edit({embeds: [em]}).then((m) => {
+			if(message.guild.me.permissions.has('MANAGE_MESSAGES')) {
+				m.reactions.removeAll();
+				m.react('⬅️');
+				m.react('➡️');				
+			}
+ 		});
+	}).catch((e) => {
+		message.channel.send(":x: Error!");
+		return;
+	});
+}
+
+module.exports = {changePrefix, sendHelp, debug, nnn, reactAdd};

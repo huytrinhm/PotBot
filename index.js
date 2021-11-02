@@ -39,6 +39,7 @@ const cmds = [
 const client = new Client({ intents: [
 	Intents.FLAGS.GUILDS,
 	Intents.FLAGS.GUILD_MESSAGES,
+	Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
 ] });
 
 client.on('ready', () => {
@@ -103,6 +104,8 @@ client.on('messageCreate', async (msg) => {
 			utils.nnn(tokens, msg);
 	}
 });
+
+client.on('messageReactionAdd', utils.reactAdd);
 
 
 client.login(process.env.BOT_TOKEN);
