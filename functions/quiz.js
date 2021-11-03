@@ -377,8 +377,8 @@ async function quizLoop(msg, count, alone, timeoutCount) {
 			if(collected.first().content.toLowerCase() == 'quit') {
 				quit = true;
 			} else {
+				answered = true;
 				if(collected.first().content.toLowerCase() != 'skip') {
-					answered = true;
 					if(checkAns(quiz.answers, collected.first().content)) {
 						collected.first().react('<:pepeOK:883707335615340544>');
 						collected.first().reply('Correct!');
@@ -405,15 +405,15 @@ async function quizLoop(msg, count, alone, timeoutCount) {
 		msg.channel.send('Bye!');
 		return;
 	}
-	quizLoop(msg, count, alone);
+	quizLoop(msg, count, alone, timeoutCount);
 }
 
 async function endlessQuiz(tokens, msg) {
 	var count = (await db.collection('misc').doc('quiz-info').get('count')).data().count;
 	if(tokens.length == 2 && tokens[1].toLowerCase() == 'alone')
-		quizLoop(msg, count, true);
+		quizLoop(msg, count, true, 0);
 	else
-		quizLoop(msg, count, false);
+		quizLoop(msg, count, false, 0);
 }
 
 module.exports = {showQuiz, addQuiz, editQuiz, showStat, endlessQuiz};
