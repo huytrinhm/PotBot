@@ -350,7 +350,11 @@ function wordCount(s) {
 	return s.split(' ').length;
 }
 
-async function quizLoop(msg, count, alone) {
+async function quizLoop(msg, count, alone, timeoutCount) {
+	if(timeoutCount >= 3) {
+		msg.channel.send('AFK ròi à');
+		return;
+	}
 	var id = random(count);
 	var quiz = (await db.collection('quiz').doc(String(id)).get()).data();
 	sendQuizWithoutAns(msg, quiz, id);
@@ -362,7 +366,7 @@ async function quizLoop(msg, count, alone) {
 		else
 			return !m.author.bot;
 	};
-	var quit = false, skip = false, correct = false;
+	var quit = false, skip = false, correct = false, answered = false;
 	while(!quit && !skip && !correct) {
 		await msg.channel.awaitMessages({
 			filter,
@@ -374,6 +378,7 @@ async function quizLoop(msg, count, alone) {
 				quit = true;
 			} else {
 				if(collected.first().content.toLowerCase() != 'skip') {
+					answered = true;
 					if(checkAns(quiz.answers, collected.first().content)) {
 						collected.first().react('<:pepeOK:883707335615340544>');
 						collected.first().reply('Correct!');
@@ -386,6 +391,11 @@ async function quizLoop(msg, count, alone) {
 				}
 			}
 		}).catch(() => {
+			if(answered) {
+				timeoutCount = 0;
+			} else {
+				timeoutCount++;
+			}
 			msg.channel.send('Time\'s up!');
 			skip = true;
 		});
