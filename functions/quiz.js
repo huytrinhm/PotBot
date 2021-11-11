@@ -391,14 +391,14 @@ async function quizLoop(msg, count, alone, timeoutCount) {
 				}
 			}
 		}).catch(() => {
-			if(answered) {
-				timeoutCount = 0;
-			} else {
-				timeoutCount++;
-			}
 			msg.channel.send('Time\'s up!');
 			skip = true;
 		});
+		if(answered) {
+			timeoutCount = 0;
+		} else {
+			timeoutCount++;
+		}
 	}
 	msg.channel.send(`The answer is **${quiz.answers[0].replaceAll('~+', ', ').replaceAll('~>', ', ')}**`);
 	if(quit) {
