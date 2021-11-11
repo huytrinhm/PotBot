@@ -371,7 +371,7 @@ async function quizLoop(msg, count, alone, timeoutCount, list) {
 	}
 	if(list.length == 0)
 		list = shuffle([...Array(count).keys()]);
-	var id = list.shift();
+	var id = list.shift() + 1;
 	var quiz = (await db.collection('quiz').doc(String(id)).get()).data();
 	sendQuizWithoutAns(msg, quiz, id);
 	var startTime = Date.now();
