@@ -321,6 +321,20 @@ function random(n) {
 	return Math.floor(Math.random() * n + 1);
 }
 
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  while (currentIndex != 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
 function checkAns(sys, usr) {
 	var uans = usr.toLowerCase().replaceAll(' , ', ', ').replaceAll(', ', ',').replaceAll(',', ', ').trim();
 	for(const ans of sys) {
@@ -350,12 +364,14 @@ function wordCount(s) {
 	return s.split(' ').length;
 }
 
-async function quizLoop(msg, count, alone, timeoutCount) {
+async function quizLoop(msg, count, alone, timeoutCount, list) {
 	if(timeoutCount >= 3) {
 		msg.channel.send('AFK ròi à');
 		return;
 	}
-	var id = random(count);
+	if(list.length == 0)
+		list = shuffle([...Array(count).keys()]);
+	var id = list.shift();
 	var quiz = (await db.collection('quiz').doc(String(id)).get()).data();
 	sendQuizWithoutAns(msg, quiz, id);
 	var startTime = Date.now();
@@ -405,15 +421,16 @@ async function quizLoop(msg, count, alone, timeoutCount) {
 		msg.channel.send('Bye!');
 		return;
 	}
-	quizLoop(msg, count, alone, timeoutCount);
+	quizLoop(msg, count, alone, timeoutCount, list);
 }
 
 async function endlessQuiz(tokens, msg) {
 	var count = (await db.collection('misc').doc('quiz-info').get('count')).data().count;
+	var list = shuffle([...Array(count).keys()]);
 	if(tokens.length == 2 && tokens[1].toLowerCase() == 'alone')
-		quizLoop(msg, count, true, 0);
+		quizLoop(msg, count, true, 0, list);
 	else
-		quizLoop(msg, count, false, 0);
+		quizLoop(msg, count, false, 0, list);
 }
 
 module.exports = {showQuiz, addQuiz, editQuiz, showStat, endlessQuiz};
