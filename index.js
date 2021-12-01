@@ -33,7 +33,7 @@ const cmds = [
 	'add-quiz',
 	'quiz-stat',
 	'<(")',
-	'nnn'
+	'ddd'
 ];
 
 const client = new Client({ intents: [
@@ -100,7 +100,7 @@ client.on('messageCreate', async (msg) => {
 		case prefix + '<(")':
 			utils.debug(tokens, msg);
 			break;
-		case prefix + 'nnn':
+		case prefix + 'ddd':
 			utils.nnn(tokens, msg);
 	}
 });
