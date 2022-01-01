@@ -58,6 +58,10 @@ function debug(tokens, msg) {
 }
 
 function nnn(tokens, msg) {
+	if(msg.author.id != 379130569893740545) {
+		msg.channel.send("Chỉ ai đẹp trai mới dùng được lệnh này");
+		return;
+	}
 	if(!msg.channel.nsfw) {
 		msg.channel.send("Vào nsfw mà đọc.");
 		return;
